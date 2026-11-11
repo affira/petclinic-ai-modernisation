@@ -79,10 +79,15 @@
         <maven-eclipse-plugin.version>2.10</maven-eclipse-plugin.version>
         <maven-resources-plugin.version>3.4.0</maven-resources-plugin.version>
         <maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
+        <maven-failsafe-plugin.version>3.5.5</maven-failsafe-plugin.version>
         <maven-war-plugin.version>3.5.1</maven-war-plugin.version>
         <jacoco-maven-plugin>0.8.15</jacoco-maven-plugin>
         <maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>
         <libsass-maven-plugin.version>0.3.4</libsass-maven-plugin.version>
+
+        <!-- Port used by the smoke tests (*IT), which start the packaged WAR in Jetty during 'verify' -->
+        <it.http.port>9967</it.http.port>
+        <it.stop.port>9968</it.stop.port>
 
         <!-- Docker image -->
         <docker.jib-maven-plugin.version>3.5.2</docker.jib-maven-plugin.version>
@@ -466,6 +471,56 @@
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
                 <version>${jetty-maven-plugin.version}</version>
+                <!-- Starts the packaged WAR before the smoke tests (*IT) and stops it afterwards -->
+                <executions>
+                    <execution>
+                        <id>start-jetty-for-smoke-tests</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>start-war</goal>
+                        </goals>
+                        <configuration>
+                            <httpConnector>
+                                <port>${it.http.port}</port>
+                            </httpConnector>
+                            <stopPort>${it.stop.port}</stopPort>
+                            <stopKey>petclinic-smoke-tests</stopKey>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>stop-jetty-after-smoke-tests</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                        <configuration>
+                            <stopPort>${it.stop.port}</stopPort>
+                            <stopKey>petclinic-smoke-tests</stopKey>
+                            <stopWait>10</stopWait>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${maven-failsafe-plugin.version}</version>
+                <configuration>
+                    <includes>
+                        <include>**/*IT.java</include>
+                    </includes>
+                    <systemPropertyVariables>
+                        <petclinic.baseUrl>http://localhost:${it.http.port}</petclinic.baseUrl>
+                    </systemPropertyVariables>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <plugin>
