@@ -159,13 +159,70 @@ suite also passed in random test order.
 
 ## 4. AI assistance: what worked and what needed correcting
 
-<!-- Your own notes. Nothing below has been filled in by the assistant. -->
+> **Note:** the author asked the assistant to draft this section from the session record. Every
+> item below refers to something that happened in the session (see [prompts/](prompts/README.md)
+> and the commit history). The author should review it and keep, edit or remove items, and the
+> suggestions in the last part in particular.
 
 ### What the AI assistance did well
 
+- **Checked claims against the running app and the build, not only the code.** It traced the
+  add-owner request live, confirmed the visit-list 404 on the server, measured coverage with
+  JaCoCo, and ran `javac -Xlint:all` to look for deprecated APIs.
+- **Followed the CLAUDE.md rules throughout.** Tests came before changes, and the full suite ran
+  after every step. No characterization test assertion was changed during the upgrade.
+- **Caught a behaviour change the tests didn't cover.** A before/after comparison of 56 HTTP
+  responses found that `/vets` with `Accept: application/xml` would change from 406 to 200. The old
+  behaviour was restored and pinned with a test, which was shown to fail without the fix.
+- **Warned before risky or outward-facing steps.** Examples: Spring Boot 3 being out of free
+  support and older than the app's Spring version (option A); the pull request page defaulting to
+  the original repository; names of unrelated local projects in the prompts and CLAUDE.md, removed
+  before pushing.
+- **Said when it didn't know.** ARCHITECTURE.md lists open questions. The Docker image was left
+  unchanged because it couldn't be verified, and external facts (end-of-life dates, the Spring 7
+  baseline) were looked up and cited.
+
 ### Where I had to correct it
 
+Corrections that came from the author:
+
+- **Wrong diagnosis at first.** Asked why localhost:8080 showed another site's icons, the assistant
+  first blamed the browser's icon cache. A later screenshot showed they came from the browser's
+  bookmarks bar.
+- **Long answers.** After the two-option comparison, the author asked "what is good?" to get a
+  plain recommendation.
+- **What gets published.** Asking why the prompts are pushed to GitHub led to rewording the
+  references to unrelated local projects. That included amending a commit that hadn't been pushed.
+- **Completion checks.** Asking "is all of this done?" showed that this section and the prompts
+  were still empty.
+
+Mistakes the assistant caught itself, through tests or checks:
+
+- **Test setup that changed the app's behaviour.** Wrapping each web test in one transaction
+  changed how JPA behaved. The tests were switched to real commits with the database reseeded.
+- **Wrong first expectations, fixed after observing real behaviour:** ISO dates are accepted;
+  `01234567890` passes the phone rule; a search for `%vis` also matches McTavish; an empty phone
+  number gets two errors.
+- **A smoke-test check that was too broad.** It treated any page containing "Exception" as an
+  error, but the menu's tooltip has that word on every page.
+- **A test context setup that didn't work.** A single flat Spring context failed, so the tests use
+  the same parent/child split as production.
+- **Small inaccuracies.** Some line references in ARCHITECTURE.md were a few lines off and were
+  fixed after checking. The plan's "compile for 25, test on 21 and 25" contradicted itself and was
+  flagged before step 1.
+- **Commits made late.** Steps 0–4 were done before the "commit after each green step"
+  instruction, so they were rebuilt as separate commits, each verified green.
+
 ### What I would do differently next time
+
+*Suggestions drafted from the session, for the author to keep or replace:*
+
+- Set the commit rules at the start, so each step is committed as it's finished.
+- Settle scope questions during planning: the target Java version, and whether the Docker image is
+  included.
+- Check for port conflicts on the machine before the first run.
+- Ask for the recommendation first and the detail after, when comparing options.
+- Decide early what may be published (prompts, local paths and names), before anything is pushed.
 
 ## 5. Next steps
 
