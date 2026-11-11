@@ -55,7 +55,6 @@ Before do this, would be good to check properties defined in MySQL profile insid
 
 ```
 <properties>
-    <jpa.database>MYSQL</jpa.database>
     <jdbc.driverClassName>com.mysql.cj.jdbc.Driver</jdbc.driverClassName>
     <jdbc.url>jdbc:mysql://localhost:3306/petclinic?useUnicode=true</jdbc.url>
     <jdbc.username>petclinic</jdbc.username>
@@ -79,7 +78,6 @@ Before do this, would be good to check properties defined in PostgreSQL profile 
 
 ```
 <properties>
-    <jpa.database>POSTGRESQL</jpa.database>
     <jdbc.driverClassName>org.postgresql.Driver</jdbc.driverClassName>
     <jdbc.url>jdbc:postgresql://localhost:5432/petclinic</jdbc.url>
     <jdbc.username>postgres</jdbc.username>
