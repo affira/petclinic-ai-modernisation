@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure.dtd">
-<Configure class="org.eclipse.jetty.webapp.WebAppContext">
+<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "https://www.eclipse.org/jetty/configure_10_0.dtd">
+<Configure class="org.eclipse.jetty.ee11.webapp.WebAppContext">
     <!-- Fix Jetty 9 issue -->
     <!-- http://stackoverflow.com/questions/32643530/classpath-issue-between-jetty-maven-plugin-and-tomcat-jdbc-8-0-9-leading-to-ser -->
+    <!-- Jetty 12.1 (ee11) still reads this file as a fallback for jetty-ee11-web.xml -->
     <Set name="parentLoaderPriority">true</Set>
 </Configure>
