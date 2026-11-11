@@ -4,6 +4,21 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=spring-petclinic_spring-framework-petclinic&metric=alert_status)](https://sonarcloud.io/dashboard?id=spring-petclinic_spring-framework-petclinic)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=spring-petclinic_spring-framework-petclinic&metric=coverage)](https://sonarcloud.io/dashboard?id=spring-petclinic_spring-framework-petclinic)
 
+> **About this fork.** This repository is a fork of
+> [spring-petclinic/spring-framework-petclinic](https://github.com/spring-petclinic/spring-framework-petclinic),
+> used to document a legacy Spring Framework application, put it under characterization tests and
+> modernise it in place with AI assistance.
+>
+> - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): how the application is built, with file references, risks and open questions
+> - [MODERNIZATION.md](MODERNIZATION.md): what was modernised, before and after, how the tests protected it, and next steps
+> - [prompts/](prompts/README.md): the prompts used
+>
+> **Credit:** all credit for the application goes to the original project,
+> [spring-petclinic/spring-framework-petclinic](https://github.com/spring-petclinic/spring-framework-petclinic),
+> and its authors and contributors, and to [spring-projects/spring-petclinic](https://github.com/spring-projects/spring-petclinic),
+> which it was derived from. It is licensed under the [Apache License 2.0](LICENSE.txt), which this fork keeps.
+> The badges and the rest of this README describe the original project.
+
 Approved by the Spring team, this repo is a fork of the [spring-projects/spring-petclinic](https://github.com/spring-projects/spring-petclinic).
 It allows the Spring community to maintain a Petclinic version with a plain old **Spring Framework configuration**
 and with a **3-layer architecture** (i.e. presentation --> service --> repository).
