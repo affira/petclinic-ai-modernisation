@@ -14,6 +14,10 @@ jobs:
     strategy:
       matrix:
         java: [ '17', '21' ]
+    env:
+      # Exposed at job level so a step can check it: 'secrets' can't be used in a step's 'if'.
+      # Empty when the repository has no SONAR_TOKEN secret (for example in a fork).
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
     steps:
     - uses: actions/checkout@v3
@@ -23,8 +27,12 @@ jobs:
         java-version: ${{matrix.java}}
         distribution: 'adopt'
         cache: maven
-    - name: Build and analyze
+    - name: Build
+      run: ./mvnw -B verify
+    - name: Analyze with SonarCloud
+      # Skipped when there is no SONAR_TOKEN secret, so the build stays green without SonarCloud access.
+      # Uses the results of the Build step (compiled classes, JaCoCo report) from this job.
+      if: env.SONAR_TOKEN != ''
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=spring-petclinic_spring-framework-petclinic -Dsonar.organization=spring-petclinic
+      run: ./mvnw -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=spring-petclinic_spring-framework-petclinic -Dsonar.organization=spring-petclinic
