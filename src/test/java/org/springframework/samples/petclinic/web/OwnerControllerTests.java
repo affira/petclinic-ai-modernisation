@@ -6,7 +6,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.service.ClinicService;
-import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.samples.petclinic.config.WebMvcConfig;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.ContextHierarchy;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -23,7 +28,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Colin But
  */
 
-@SpringJUnitWebConfig(locations = {"classpath:spring/mvc-test-config.xml", "classpath:spring/mvc-core-config.xml"})
+@ExtendWith(SpringExtension.class)
+@WebAppConfiguration
+@ContextHierarchy({
+    @ContextConfiguration(locations = "classpath:spring/mvc-test-config.xml"),
+    @ContextConfiguration(classes = WebMvcConfig.class)
+})
 class OwnerControllerTests {
 
     private static final int TEST_OWNER_ID = 1;

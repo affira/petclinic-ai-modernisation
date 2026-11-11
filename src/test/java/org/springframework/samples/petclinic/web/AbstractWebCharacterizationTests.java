@@ -28,6 +28,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.samples.petclinic.config.WebMvcConfig;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ContextHierarchy;
@@ -68,7 +69,7 @@ import org.springframework.web.context.WebApplicationContext;
     @ContextConfiguration(name = "root", locations = {
         "classpath:spring/business-config.xml",
         "classpath:spring/tools-config.xml"}),
-    @ContextConfiguration(name = "servlet", locations = "classpath:spring/mvc-core-config.xml")
+    @ContextConfiguration(name = "servlet", classes = WebMvcConfig.class)
 })
 @ActiveProfiles("jpa")
 @Sql(scripts = {"classpath:db/h2/schema.sql", "classpath:db/h2/data.sql"},

@@ -161,7 +161,7 @@ class OwnerWebCharacterizationTests extends AbstractWebCharacterizationTests {
 
         @Test
         void unknownOwnerShowsGenericErrorPageWithStatus200() throws Exception {
-            // SimpleMappingExceptionResolver (mvc-core-config.xml) renders exception.jsp without an error status
+            // SimpleMappingExceptionResolver (WebMvcConfig) renders exception.jsp without an error status
             MvcResult result = mockMvc.perform(get("/owners/9999"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("exception"))

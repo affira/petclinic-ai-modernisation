@@ -165,11 +165,11 @@ The following items should be installed in your system:
 
 | Inside the 'Web' layer | Files |
 |------------------------|-------|
-| Spring MVC - XML integration | [mvc-view-config.xml](src/main/resources/spring/mvc-view-config.xml)  |
-| Spring MVC - ContentNegotiatingViewResolver| [mvc-view-config.xml](src/main/resources/spring/mvc-view-config.xml) |
+| Spring MVC - XML integration | [WebMvcConfig.java](src/main/java/org/springframework/samples/petclinic/config/WebMvcConfig.java) (`vetsXmlView`, `marshaller`) |
+| Spring MVC - ContentNegotiatingViewResolver| [WebMvcConfig.java](src/main/java/org/springframework/samples/petclinic/config/WebMvcConfig.java) (`configureViewResolvers`) |
 | JSP custom tags | [WEB-INF/tags](src/main/webapp/WEB-INF/tags), [createOrUpdateOwnerForm.jsp](src/main/webapp/WEB-INF/jsp/owners/createOrUpdateOwnerForm.jsp)|
 | JavaScript dependencies | [JavaScript libraries are declared as webjars in the pom.xml](pom.xml) |
-| Static resources config | [Resource mapping in Spring configuration](/src/main/resources/spring/mvc-core-config.xml#L30) |
+| Static resources config | [Resource mapping in Spring configuration](src/main/java/org/springframework/samples/petclinic/config/WebMvcConfig.java) (`addResourceHandlers`) |
 | Static resources usage | [htmlHeader.tag](src/main/webapp/WEB-INF/tags/htmlHeader.tag), [footer.tag](src/main/webapp/WEB-INF/tags/footer.tag) |
 | Thymeleaf | In the late 2016, the original [Spring Petclinic](https://github.com/spring-projects/spring-petclinic) has moved from JSP to Thymeleaf. |
 
