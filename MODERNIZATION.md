@@ -159,10 +159,8 @@ suite also passed in random test order.
 
 ## 4. AI assistance: what worked and what needed correcting
 
-> **Note:** the author asked the assistant to draft this section from the session record. Every
-> item below refers to something that happened in the session (see [prompts/](prompts/README.md)
-> and the commit history). The author should review it and keep, edit or remove items, and the
-> suggestions in the last part in particular.
+*Written with the AI assistant from the session record. Every item refers to something that
+happened during the work (see [prompts/](prompts/README.md) and the commit history).*
 
 ### What the AI assistance did well
 
@@ -214,8 +212,6 @@ Mistakes the assistant caught itself, through tests or checks:
   instruction, so they were rebuilt as separate commits, each verified green.
 
 ### What I would do differently next time
-
-*Suggestions drafted from the session, for the author to keep or replace:*
 
 - Set the commit rules at the start, so each step is committed as it's finished.
 - Settle scope questions during planning: the target Java version, and whether the Docker image is
