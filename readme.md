@@ -4,6 +4,21 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=spring-petclinic_spring-framework-petclinic&metric=alert_status)](https://sonarcloud.io/dashboard?id=spring-petclinic_spring-framework-petclinic)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=spring-petclinic_spring-framework-petclinic&metric=coverage)](https://sonarcloud.io/dashboard?id=spring-petclinic_spring-framework-petclinic)
 
+> **About this fork.** This repository is a fork of
+> [spring-petclinic/spring-framework-petclinic](https://github.com/spring-petclinic/spring-framework-petclinic),
+> used to document a legacy Spring Framework application, put it under characterization tests and
+> modernise it in place with AI assistance.
+>
+> - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): how the application is built, with file references, risks and open questions
+> - [MODERNIZATION.md](MODERNIZATION.md): what was modernised, before and after, how the tests protected it, and next steps
+> - [prompts/](prompts/README.md): the prompts used
+>
+> **Credit:** all credit for the application goes to the original project,
+> [spring-petclinic/spring-framework-petclinic](https://github.com/spring-petclinic/spring-framework-petclinic),
+> and its authors and contributors, and to [spring-projects/spring-petclinic](https://github.com/spring-projects/spring-petclinic),
+> which it was derived from. It is licensed under the [Apache License 2.0](LICENSE.txt), which this fork keeps.
+> The badges and the rest of this README describe the original project.
+
 Approved by the Spring team, this repo is a fork of the [spring-projects/spring-petclinic](https://github.com/spring-projects/spring-petclinic).
 It allows the Spring community to maintain a Petclinic version with a plain old **Spring Framework configuration**
 and with a **3-layer architecture** (i.e. presentation --> service --> repository).
@@ -55,7 +70,6 @@ Before do this, would be good to check properties defined in MySQL profile insid
 
 ```
 <properties>
-    <jpa.database>MYSQL</jpa.database>
     <jdbc.driverClassName>com.mysql.cj.jdbc.Driver</jdbc.driverClassName>
     <jdbc.url>jdbc:mysql://localhost:3306/petclinic?useUnicode=true</jdbc.url>
     <jdbc.username>petclinic</jdbc.username>
@@ -79,7 +93,6 @@ Before do this, would be good to check properties defined in PostgreSQL profile 
 
 ```
 <properties>
-    <jpa.database>POSTGRESQL</jpa.database>
     <jdbc.driverClassName>org.postgresql.Driver</jdbc.driverClassName>
     <jdbc.url>jdbc:postgresql://localhost:5432/petclinic</jdbc.url>
     <jdbc.username>postgres</jdbc.username>
@@ -167,11 +180,11 @@ The following items should be installed in your system:
 
 | Inside the 'Web' layer | Files |
 |------------------------|-------|
-| Spring MVC - XML integration | [mvc-view-config.xml](src/main/resources/spring/mvc-view-config.xml)  |
-| Spring MVC - ContentNegotiatingViewResolver| [mvc-view-config.xml](src/main/resources/spring/mvc-view-config.xml) |
+| Spring MVC - XML integration | [WebMvcConfig.java](src/main/java/org/springframework/samples/petclinic/config/WebMvcConfig.java) (`vetsXmlView`, `marshaller`) |
+| Spring MVC - ContentNegotiatingViewResolver| [WebMvcConfig.java](src/main/java/org/springframework/samples/petclinic/config/WebMvcConfig.java) (`configureViewResolvers`) |
 | JSP custom tags | [WEB-INF/tags](src/main/webapp/WEB-INF/tags), [createOrUpdateOwnerForm.jsp](src/main/webapp/WEB-INF/jsp/owners/createOrUpdateOwnerForm.jsp)|
 | JavaScript dependencies | [JavaScript libraries are declared as webjars in the pom.xml](pom.xml) |
-| Static resources config | [Resource mapping in Spring configuration](/src/main/resources/spring/mvc-core-config.xml#L30) |
+| Static resources config | [Resource mapping in Spring configuration](src/main/java/org/springframework/samples/petclinic/config/WebMvcConfig.java) (`addResourceHandlers`) |
 | Static resources usage | [htmlHeader.tag](src/main/webapp/WEB-INF/tags/htmlHeader.tag), [footer.tag](src/main/webapp/WEB-INF/tags/footer.tag) |
 | Thymeleaf | In the late 2016, the original [Spring Petclinic](https://github.com/spring-projects/spring-petclinic) has moved from JSP to Thymeleaf. |
 

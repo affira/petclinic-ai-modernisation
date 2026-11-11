@@ -73,16 +73,21 @@
         <aspectj.version>1.9.25.1</aspectj.version>
 
         <!-- Maven plugins -->
-        <jetty-maven-plugin.version>11.0.26</jetty-maven-plugin.version>
+        <jetty-maven-plugin.version>12.1.14</jetty-maven-plugin.version>
         <maven-assembly-plugin.version>3.8.0</maven-assembly-plugin.version>
         <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
-        <maven-eclipse-plugin.version>2.10</maven-eclipse-plugin.version>
         <maven-resources-plugin.version>3.4.0</maven-resources-plugin.version>
         <maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
+        <maven-failsafe-plugin.version>3.5.5</maven-failsafe-plugin.version>
+        <maven-dependency-plugin.version>3.7.0</maven-dependency-plugin.version>
         <maven-war-plugin.version>3.5.1</maven-war-plugin.version>
         <jacoco-maven-plugin>0.8.15</jacoco-maven-plugin>
         <maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>
         <libsass-maven-plugin.version>0.3.4</libsass-maven-plugin.version>
+
+        <!-- Port used by the smoke tests (*IT), which start the packaged WAR in Jetty during 'verify' -->
+        <it.http.port>9967</it.http.port>
+        <it.stop.port>9968</it.stop.port>
 
         <!-- Docker image -->
         <docker.jib-maven-plugin.version>3.5.2</docker.jib-maven-plugin.version>
@@ -179,7 +184,7 @@
             <artifactId>spring-webmvc</artifactId>
             <version>${spring-framework.version}</version>
         </dependency>
-        <!-- used for EhCacheCacheManager -->
+        <!-- used for CaffeineCacheManager -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context-support</artifactId>
@@ -278,6 +283,7 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
             <version>${junit-jupiter.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.assertj</groupId>
@@ -295,6 +301,7 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
             <version>${mockito.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
@@ -368,10 +375,26 @@
             </plugin>
 
             <plugin>
+                <!-- Exposes each dependency's jar path as a property, e.g. ${org.mockito:mockito-core:jar} -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>${maven-dependency-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>properties</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven-surefire-plugin.version}</version>
                 <configuration>
+                    <!-- Load Mockito's agent explicitly: dynamic agent loading will be disallowed by default
+                         in a future JDK. @{argLine} keeps the JaCoCo agent set by prepare-agent. -->
+                    <argLine>@{argLine} -javaagent:${org.mockito:mockito-core:jar}</argLine>
                     <includes>
                         <include>**/*Tests.java</include>
                     </includes>
@@ -384,33 +407,6 @@
                 <version>${maven-war-plugin.version}</version>
                 <configuration>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-eclipse-plugin</artifactId>
-                <version>${maven-eclipse-plugin.version}</version>
-                <configuration>
-                    <downloadSources>true</downloadSources>
-                    <downloadJavadocs>true</downloadJavadocs>
-                    <wtpversion>2.0</wtpversion>
-                    <sourceIncludes>
-                        <sourceInclude>**/*.*</sourceInclude>
-                    </sourceIncludes>
-                    <additionalBuildcommands>
-                        <buildCommand>
-                            <name>org.springframework.ide.eclipse.core.springbuilder</name>
-                        </buildCommand>
-                        <buildCommand>
-                            <name>org.eclipse.m2e.core.maven2Builder</name>
-                        </buildCommand>
-                    </additionalBuildcommands>
-                    <additionalProjectnatures>
-                        <projectnature>org.eclipse.jdt.core.javanature</projectnature>
-                        <projectnature>org.springframework.ide.eclipse.core.springnature</projectnature>
-                        <projectnature>org.eclipse.m2e.core.maven2Nature</projectnature>
-                    </additionalProjectnatures>
                 </configuration>
             </plugin>
 
@@ -463,9 +459,60 @@
             </plugin>
 
             <plugin>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-maven-plugin</artifactId>
+                <!-- Jetty 12.1, "ee11" environment: Servlet 6.1 / Pages (JSP) 4.0, the level Spring Framework 7 targets -->
+                <groupId>org.eclipse.jetty.ee11</groupId>
+                <artifactId>jetty-ee11-maven-plugin</artifactId>
                 <version>${jetty-maven-plugin.version}</version>
+                <!-- Starts the packaged WAR before the smoke tests (*IT) and stops it afterwards -->
+                <executions>
+                    <execution>
+                        <id>start-jetty-for-smoke-tests</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>start-war</goal>
+                        </goals>
+                        <configuration>
+                            <httpConnector>
+                                <port>${it.http.port}</port>
+                            </httpConnector>
+                            <stopPort>${it.stop.port}</stopPort>
+                            <stopKey>petclinic-smoke-tests</stopKey>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>stop-jetty-after-smoke-tests</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                        <configuration>
+                            <stopPort>${it.stop.port}</stopPort>
+                            <stopKey>petclinic-smoke-tests</stopKey>
+                            <stopWait>10</stopWait>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${maven-failsafe-plugin.version}</version>
+                <configuration>
+                    <includes>
+                        <include>**/*IT.java</include>
+                    </includes>
+                    <systemPropertyVariables>
+                        <petclinic.baseUrl>http://localhost:${it.http.port}</petclinic.baseUrl>
+                    </systemPropertyVariables>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <plugin>
@@ -525,7 +572,6 @@
             </activation>
             <properties>
                 <db.script>h2</db.script>
-                <jpa.database>H2</jpa.database>
                 <jdbc.driverClassName>org.h2.Driver</jdbc.driverClassName>
                 <jdbc.url>jdbc:h2:mem:petclinic</jdbc.url>
                 <jdbc.username>sa</jdbc.username>
@@ -544,7 +590,6 @@
             <id>HSQLDB</id>
             <properties>
                 <db.script>hsqldb</db.script>
-                <jpa.database>HSQL</jpa.database>
                 <jdbc.driverClassName>org.hsqldb.jdbcDriver</jdbc.driverClassName>
                 <jdbc.url>jdbc:hsqldb:mem:petclinic</jdbc.url>
                 <jdbc.username>sa</jdbc.username>
@@ -563,7 +608,6 @@
             <id>MySQL</id>
             <properties>
                 <db.script>mysql</db.script>
-                <jpa.database>MYSQL</jpa.database>
                 <jdbc.driverClassName>com.mysql.cj.jdbc.Driver</jdbc.driverClassName>
                 <jdbc.url>jdbc:mysql://localhost:3306/petclinic?useUnicode=true</jdbc.url>
                 <jdbc.username>petclinic</jdbc.username>
@@ -571,8 +615,8 @@
             </properties>
             <dependencies>
                 <dependency>
-                    <groupId>mysql</groupId>
-                    <artifactId>mysql-connector-java</artifactId>
+                    <groupId>com.mysql</groupId>
+                    <artifactId>mysql-connector-j</artifactId>
                     <version>${mysql-driver.version}</version>
                     <scope>runtime</scope>
                 </dependency>
@@ -582,7 +626,6 @@
             <id>PostgreSQL</id>
             <properties>
                 <db.script>postgresql</db.script>
-                <jpa.database>POSTGRESQL</jpa.database>
                 <jdbc.driverClassName>org.postgresql.Driver</jdbc.driverClassName>
                 <jdbc.url>jdbc:postgresql://localhost:5432/petclinic</jdbc.url>
                 <jdbc.username>postgres</jdbc.username>

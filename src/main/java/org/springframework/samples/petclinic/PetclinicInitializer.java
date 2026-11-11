@@ -15,7 +15,9 @@
  */
 package org.springframework.samples.petclinic;
 
+import org.springframework.samples.petclinic.config.WebMvcConfig;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.servlet.DispatcherServlet;
@@ -61,8 +63,8 @@ public class PetclinicInitializer extends AbstractDispatcherServletInitializer {
 
     @Override
     protected WebApplicationContext createServletApplicationContext() {
-        XmlWebApplicationContext webAppContext = new XmlWebApplicationContext();
-        webAppContext.setConfigLocation("classpath:spring/mvc-core-config.xml");
+        AnnotationConfigWebApplicationContext webAppContext = new AnnotationConfigWebApplicationContext();
+        webAppContext.register(WebMvcConfig.class);
         return webAppContext;
     }
 
