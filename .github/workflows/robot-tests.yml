@@ -1,0 +1,57 @@
+# Runs the Robot Framework suite (robot/) against the packaged WAR in Jetty and uploads the
+# Robot log and report as an artifact. Separate from the Maven workflows, which it does not change.
+
+name: Robot Framework suite
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  robot:
+
+    runs-on: ubuntu-latest
+    env:
+      PETCLINIC_BASE_URL: http://localhost:9966
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        cache: pip
+        cache-dependency-path: robot/requirements.txt
+    - name: Install Robot Framework
+      run: pip install -r robot/requirements.txt
+    - name: Build the WAR and start it in Jetty
+      # jetty:run-war packages the WAR (Java tests skipped: the Maven workflows run them) and keeps
+      # running, so it is started in the background. The runner is discarded after the job.
+      run: nohup ./mvnw -B jetty:run-war -DskipTests -Djetty.http.port=9966 > jetty.log 2>&1 &
+    - name: Wait for PetClinic to answer
+      run: |
+        for i in $(seq 1 180); do
+          if curl -sf -o /dev/null "$PETCLINIC_BASE_URL/"; then echo "PetClinic is up after ${i}s"; exit 0; fi
+          sleep 1
+        done
+        echo "PetClinic did not start within 180s"; tail -n 100 jetty.log; exit 1
+    - name: Run the Robot Framework suite
+      run: robot --outputdir robot/results robot/
+    - name: Upload the Robot report
+      # Also on failure: the log is what shows which step failed.
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: robot-report
+        path: |
+          robot/results/
+          jetty.log
+        if-no-files-found: warn
