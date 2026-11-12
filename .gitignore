@@ -16,3 +16,7 @@ target/
 
 # OS
 .DS_Store
+
+# Robot Framework suite (robot/)
+robot/.venv/
+robot/results/
