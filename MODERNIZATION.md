@@ -9,6 +9,7 @@ Related documents:
   risks and open questions found while mapping it.
 - [CLAUDE.md](CLAUDE.md): the working rules the assistant followed.
 - [prompts/](prompts/README.md): the prompts used, in order.
+- [robot/](robot/README.md): a small Robot Framework suite of HTTP checks (section 6).
 
 The work is on branch `modernise/in-place-upgrade` (7 commits, starting at `078e399`). The state
 described here was measured on 11 November 2026.
@@ -251,3 +252,65 @@ place.
    Replacing JSP itself (for example with Thymeleaf) is a larger decision.
 9. **Later, if wanted: Spring Boot 4.** With configuration in Java and tests in place, moving to
    Spring Boot 4 (on Spring Framework 7) becomes a contained change, not a rewrite.
+
+## 6. Robot Framework suite
+
+Added after the upgrade, as a way to learn Robot Framework on this codebase. It is in
+[robot/](robot/README.md) and doesn't change any production code or Java tests.
+
+### What it covers
+
+Six scenarios, checked over plain HTTP with RequestsLibrary (no browser) against the packaged WAR
+running in Jetty. Each one is ported from an existing Java test:
+
+| Scenario | Ported from |
+|---|---|
+| Home page renders | `PetclinicSmokeIT.welcomePage` |
+| Owner search, one match: 302 to `/owners/1`, which shows George Franklin | `OwnerWebCharacterizationTests` (search for Franklin) |
+| Owner search, several matches: list with Betty and Harold Davis | `OwnerWebCharacterizationTests.searchMatchingSeveralOwnersShowsList` |
+| Owner search, no match: form again with "has not been found" | `OwnerWebCharacterizationTests` (search for Nobody) |
+| Creating an owner: validation errors first, then valid data with a 302 to the new owner | `PetclinicSmokeIT.invalidOwnerRedisplaysFormWithMessages`, `createOwnerThenShowIt` |
+| Visit list returns 404 (known bug, pinned as it is today, tag `known-bug`) | `PetclinicSmokeIT.visitListReturns404BecauseItsJspIsMissing` |
+
+The scenarios are in `petclinic.robot`, written with Given/When/Then keywords from
+`petclinic.resource`. The base URL is in the variables file `variables.py`, and the Python packages
+are pinned in `requirements.txt` (Robot Framework 7.5.1, RequestsLibrary 0.9.7).
+
+### How to run it
+
+```bash
+# one-time setup (Python 3.9 or newer)
+python3 -m venv robot/.venv
+robot/.venv/bin/pip install -r robot/requirements.txt
+
+# terminal 1: build the WAR and start it in Jetty
+./mvnw jetty:run-war -DskipTests -Djetty.http.port=9966
+
+# terminal 2: once http://localhost:9966/ answers
+robot/.venv/bin/robot --outputdir robot/results robot/
+```
+
+The results are written to `robot/results/` (`report.html`, `log.html`, `output.xml`), which is
+git-ignored. In CI, the workflow `.github/workflows/robot-tests.yml` runs the same steps on pull
+requests and pushes to `main`, and uploads the results as the `robot-report` artifact.
+
+### How it relates to the Java tests
+
+- **It adds no new coverage.** Every scenario already has a Java test. The suite is a second, more
+  readable view of behaviour that's already pinned, in the style a tester or business reader would
+  use.
+- **The closest Java equivalent is `PetclinicSmokeIT`.** Both send real HTTP to the WAR in Jetty.
+  The web characterization tests go further: they also check model attributes, error codes and
+  stored rows, which a black-box HTTP suite can't see.
+- **It runs outside Maven.** `./mvnw clean verify` doesn't run it. The Java tests remain the safety
+  net from [CLAUDE.md](CLAUDE.md). The Robot suite runs in its own workflow and check.
+- **The known bug is pinned the same way in both.** If the visit list is fixed, the Robot scenario
+  and the Java smoke test both fail. That forces a deliberate decision, not a silent change.
+
+### Results
+
+- **Locally, 12 November 2026** (macOS, Python 3.9.6, JDK 21): 6 tests, 6 passed, 0 failed. A
+  throwaway copy with deliberately wrong expectations failed as intended, which shows the checks
+  aren't vacuous.
+- **CI, on pull request #3:** the `robot` job passed (6 passed, 0 failed) and uploaded the
+  `robot-report` artifact. `./mvnw clean verify` still passes with 187 + 14 tests.
