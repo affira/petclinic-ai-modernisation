@@ -76,3 +76,9 @@ Visit list returns 404 because its JSP is missing
     [Tags]    visits    known-bug
     When I open the page    /owners/6/pets/7/visits
     Then the status should be    404
+
+Veterinarians page lists the vets
+    [Tags]  vets
+    When I open the page    /vets
+    Then the status should be   200
+    And the page should contain     Veterinarians   James Carter

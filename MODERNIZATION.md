@@ -260,8 +260,9 @@ Added after the upgrade, as a way to learn Robot Framework on this codebase. It 
 
 ### What it covers
 
-Six scenarios, checked over plain HTTP with RequestsLibrary (no browser) against the packaged WAR
-running in Jetty. Each one is ported from an existing Java test:
+Seven scenarios, checked over plain HTTP with RequestsLibrary (no browser) against the packaged
+WAR running in Jetty. Each one is ported from an existing Java test. The first six were written with
+the AI assistant; the last one I wrote myself, as practice:
 
 | Scenario | Ported from |
 |---|---|
@@ -271,6 +272,7 @@ running in Jetty. Each one is ported from an existing Java test:
 | Owner search, no match: form again with "has not been found" | `OwnerWebCharacterizationTests` (search for Nobody) |
 | Creating an owner: validation errors first, then valid data with a 302 to the new owner | `PetclinicSmokeIT.invalidOwnerRedisplaysFormWithMessages`, `createOwnerThenShowIt` |
 | Visit list returns 404 (known bug, pinned as it is today, tag `known-bug`) | `PetclinicSmokeIT.visitListReturns404BecauseItsJspIsMissing` |
+| Veterinarians page lists the vets, including James Carter (tag `vets`) | `PetclinicSmokeIT.vetsPageAndFeeds` (the HTML page part) |
 
 The scenarios are in `petclinic.robot`, written with Given/When/Then keywords from
 `petclinic.resource`. The base URL is in the variables file `variables.py`, and the Python packages
@@ -312,5 +314,6 @@ requests and pushes to `main`, and uploads the results as the `robot-report` art
 - **Locally, 12 November 2026** (macOS, Python 3.9.6, JDK 21): 6 tests, 6 passed, 0 failed. A
   throwaway copy with deliberately wrong expectations failed as intended, which shows the checks
   aren't vacuous.
-- **CI, on pull request #3:** the `robot` job passed (6 passed, 0 failed) and uploaded the
+- **Locally, 13 November 2026**, after adding the vets scenario: 7 tests, 7 passed, 0 failed.
+- **CI, on pull request #3 (first run, before the vets scenario):** the `robot` job passed (6 passed, 0 failed) and uploaded the
   `robot-report` artifact. `./mvnw clean verify` still passes with 187 + 14 tests.
