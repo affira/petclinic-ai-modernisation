@@ -110,9 +110,6 @@ Steps (stop after each and wait for me):
 At the end, give me one simple scenario that is NOT yet covered, so I can write it myself as practice.
 ```
 
-The practice scenario suggested at the end (the veterinarians page lists the vets) I wrote myself;
-it is the seventh scenario in `robot/petclinic.robot`.
-
 ## Follow-up questions along the way
 
 Short questions asked between the main prompts, in order:
