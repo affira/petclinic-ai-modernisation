@@ -11,8 +11,8 @@ Related documents:
 - [prompts/](prompts/README.md): the prompts used, in order.
 - [robot/](robot/README.md): a small Robot Framework suite of HTTP checks (section 6).
 
-The work is on branch `modernise/in-place-upgrade` (7 commits, starting at `078e399`). The state
-described here was measured on 11 November 2026.
+The upgrade was merged into `main` through pull request #1 (commits `078e399` to `e1e2c5b`, merge
+commit `133128b`). The state described here was measured on 11 November 2026.
 
 ---
 
@@ -44,7 +44,7 @@ Docker image, and any change to business behaviour, including known bugs.
 
 ### Versions
 
-| Component | Before (`main`, `d980667`) | After (`modernise/in-place-upgrade`) |
+| Component | Before (`d980667`) | After (pull request #1, `133128b`) |
 |---|---|---|
 | Servlet container (dev server, smoke tests) | Jetty 11.0.26: Servlet 5.0, out of community support | **Jetty 12.1.14** (ee11): Servlet 6.1, Pages (JSP) 4.0 |
 | Maven plugin | `org.eclipse.jetty:jetty-maven-plugin` | `org.eclipse.jetty.ee11:jetty-ee11-maven-plugin` |
@@ -147,7 +147,7 @@ once the XML MVC files were gone.
 
 `./mvnw clean verify` on 11 November 2026 (JDK 21.0.13, Jetty 12.1.14):
 
-| | Before (`main`) | After |
+| | Before (`d980667`) | After |
 |---|---|---|
 | Unit and MockMvc tests (Surefire) | 75 passed | **187 passed**, 0 failures, 0 errors, 0 skipped |
 | Smoke tests against the running WAR (Failsafe) | none | **14 passed**, 0 failures |
@@ -155,7 +155,7 @@ once the XML MVC files were gone.
 | Branch coverage | 73% (83/114) | **86% (98/114)** |
 | Full build time | not measured | about 27 s |
 
-Every commit on the branch was made only after the full suite passed at that exact state. The
+Every commit in pull request #1 was made only after the full suite passed at that exact state. The
 suite also passed in random test order.
 
 ## 4. AI assistance: what worked and what needed correcting
