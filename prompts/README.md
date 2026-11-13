@@ -90,6 +90,29 @@ used. Update the main README to link to ARCHITECTURE.md and MODERNIZATION.md
 and to credit the original project.
 ```
 
+## 7. Robot Framework suite (robot/)
+
+```text
+I want to learn Robot Framework by adding a small Robot Framework test suite to this repo. Follow the existing CLAUDE.md rules.
+
+Rules for this task:
+- Do not change production code or any existing Java tests.
+- Put everything in a new robot/ folder. Use RequestsLibrary for HTTP checks (no browser library).
+- The suite runs against the packaged WAR in Jetty, on the same kind of setup the existing smoke tests use. Tell me the exact commands to start the app and run the suite.
+- Keep generated output (log.html, report.html, output.xml) out of git.
+
+Steps (stop after each and wait for me):
+1. Explain briefly how Robot Framework works: test case files, keywords, variables, libraries, tags, and the log/report output. Then propose 5–6 scenarios rewritten from the existing smoke and characterization tests, for example: the home page renders, owner search with one, several and no matches, creating an owner with a validation error and then with valid data, and the known visit-list 404 pinned as it is today. Wait for my approval.
+2. Implement them using a resource file of reusable keywords (in Given/When/Then style where it reads naturally) and a variables file for the base URL. Run the suite and show me the results.
+3. Add a GitHub Actions job that builds the WAR, starts it, runs the Robot suite and uploads the report as an artifact. Do not break the existing workflows.
+4. Add a short "Robot Framework suite" section to MODERNIZATION.md: what it covers, how to run it, and how it relates to the Java tests. Do not invent results.
+
+At the end, give me one simple scenario that is NOT yet covered, so I can write it myself as practice.
+```
+
+The practice scenario suggested at the end (the veterinarians page lists the vets) I wrote myself;
+it is the seventh scenario in `robot/petclinic.robot`.
+
 ## Follow-up questions along the way
 
 Short questions asked between the main prompts, in order:
